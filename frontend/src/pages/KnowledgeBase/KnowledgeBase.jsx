@@ -101,11 +101,13 @@ export default function KnowledgeBase() {
   // ==========================================
   // LOAD DOCUMENTS ON COMPONENT MOUNT
   // ==========================================
-
-  useEffect(() => {
+useEffect(() => {
+  const timer = setTimeout(() => {
     fetchDocuments();
-  }, []);
+  }, 0);
 
+  return () => clearTimeout(timer);
+}, []);
   // ==========================================
   // AUTO SCROLL CHAT
   // ==========================================
