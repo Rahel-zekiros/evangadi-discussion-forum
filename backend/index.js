@@ -3,9 +3,6 @@ import { db } from "./db/config.js";
 import { mainRouter } from "./src/routes/index.js";
 import { errorHandler } from "./src/middleware/error-handler.js";
 import cors from "cors";
-import path from 'path';
-import { fileURLToPath } from 'url'; 
-// import uploadRouter from "./src/api/uploads/router.js"; // NEW: image upload route
 
 const app = express();
 const port = process.env.PORT || 5000;
