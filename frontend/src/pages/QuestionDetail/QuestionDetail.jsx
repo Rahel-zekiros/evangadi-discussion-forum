@@ -51,7 +51,9 @@ export default function QuestionDetail() {
     try {
       setIsLoading(true);
       setError(null);
+
       const data = await getSingleQuestion(questionHash);
+
       setQuestion(data.question);
       setAnswers(data.answers ?? []);
 
@@ -59,24 +61,22 @@ export default function QuestionDetail() {
       try {
         const similar = await getSimilarQuestions(questionHash, 5);
         setRelated(similar.data ?? []);
-      } catch (e) {
+      } catch {
         setRelated([]);
       }
-    } catch (err) {
-      setError(
-        err.response?.status === 404
-          ? "Failed to load question details."
-          : "Failed to load question details.",
-      );
+    } catch {
+      setError("Failed to load question details.");
     } finally {
       setIsLoading(false);
     }
   }, [questionHash]);
+useEffect(() => {
+  const timer = setTimeout(() => {
+   fetchQuestion();
+  }, 0);
 
-  useEffect(() => {
-    fetchQuestion();
-  }, [fetchQuestion]);
-
+  return () => clearTimeout(timer);
+}, [fetchQuestion]);
   const isOwnQuestion =
     !!currentUser && !!question && question.author?.id === currentUser.id;
 
@@ -93,6 +93,7 @@ export default function QuestionDetail() {
       } else {
         await navigator.clipboard.writeText(shareData.url);
       }
+
       setShareCopied(true);
       window.setTimeout(() => setShareCopied(false), 2000);
     } catch (err) {

@@ -13,15 +13,16 @@ import {
   FileText,
   Database,
   PlayCircle,
+  LogOut,
+  User,
 } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import styles from "./Landing.module.css";
 
 export default function Landing() {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
-  // holds a reference to the input DOM node (no re-render on change)
-  // useRef  Smooth Scrolling
+  const { isAuthenticated, currentUser, logoutUser } = useAuth();
+
   const howItWorksRef = useRef(null);
   const courseRagRef = useRef(null);
 
@@ -65,14 +66,6 @@ export default function Landing() {
             >
               Course RAG
             </button>
-            {/* <button
-              type="button"
-              className={styles.navItem}
-              onClick={() => scrollToSection(howItWorksRef)}
-            >
-              How it works
-            </button>
-             */}
             <button
               type="button"
               className={styles.navItem}
@@ -81,17 +74,48 @@ export default function Landing() {
               See how it works
             </button>
           </nav>
-
           <div className={styles.authButtons}>
             {isAuthenticated ? (
-              <button
-                type="button"
-                className={styles.btnPrimary}
-                onClick={() => navigate("/dashboard")}
-              >
-                Open forum
-                <ArrowRight size={16} aria-hidden />
-              </button>
+              <div className={styles.loggedInNavGroup}>
+                <div className={styles.userAndLogoutGroup}>
+                  <div className={styles.userInfoBadge}>
+                    <div className={styles.userAvatar}>
+                      {currentUser?.firstName && currentUser?.lastName ? (
+                        `${currentUser.firstName.charAt(0)}${currentUser.lastName.charAt(0)}`.toUpperCase()
+                      ) : currentUser?.firstName ? (
+                        currentUser.firstName.charAt(0).toUpperCase()
+                      ) : (
+                        <User size={14} />
+                      )}
+                    </div>
+                    <span className={styles.userNameText}>
+                      {currentUser?.firstName && currentUser?.lastName
+                        ? `${currentUser.firstName} ${currentUser.lastName}`
+                        : currentUser?.firstName || currentUser?.name || "User"}
+                    </span>
+                  </div>
+
+                  <button
+                    type="button"
+                    className={styles.btnGhost}
+                    onClick={logoutUser}
+                    title="Sign out"
+                  >
+                    <LogOut size={16} />
+                    Logout
+                  </button>
+                </div>
+
+                {/* 2. Open Forum  */}
+                <button
+                  type="button"
+                  className={styles.btnPrimary}
+                  onClick={() => navigate("/dashboard")}
+                >
+                  Open forum
+                  <ArrowRight size={16} aria-hidden />
+                </button>
+              </div>
             ) : (
               <>
                 <button
@@ -448,7 +472,7 @@ export default function Landing() {
                   onClick={() => navigate("/auth")}
                 >
                   Create free account
-                  <ArrowRight size={16} aria-hidden />
+                  <ArrowRight size={16} aria-hidden />{" "}
                 </button>
               </div>
             </section>
@@ -488,13 +512,23 @@ export default function Landing() {
             </p>
           </div>
           <div className={styles.footerNav}>
-            <button
-              type="button"
-              className={styles.footerBtn}
-              onClick={() => navigate("/auth")}
-            >
-              Sign in
-            </button>
+            {isAuthenticated ? (
+              <button
+                type="button"
+                className={styles.footerBtn}
+                onClick={logoutUser}
+              >
+                Logout
+              </button>
+            ) : (
+              <button
+                type="button"
+                className={styles.footerBtn}
+                onClick={() => navigate("/auth")}
+              >
+                Sign in
+              </button>
+            )}
             <span className={styles.bulletSeparator} aria-hidden>
               ·
             </span>
@@ -504,7 +538,6 @@ export default function Landing() {
             <span className={styles.bulletSeparator} aria-hidden>
               ·
             </span>
-
             <a href="#" className={styles.footerLink}>
               Terms
             </a>

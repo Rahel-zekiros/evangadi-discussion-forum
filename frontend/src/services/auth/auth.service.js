@@ -38,9 +38,11 @@ async function loginAccount(credentials) {
 async function verifyActiveSession() {
   try {
     const token = retrieveAuthToken();
-    if (token) {
-      apiClient.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    if (!token) {
+      throw new Error("No active token found.");
     }
+
+    apiClient.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
     const res = await apiClient.get("/api/auth/me");
     const profile = res.data.user || res.data;
@@ -59,12 +61,16 @@ function clearSessionData() {
 }
 
 function retrieveAuthToken() {
-  return localStorage.getItem("authToken");
+  const token = localStorage.getItem("authToken");
+  if (!token || token === "null" || token === "undefined" || token.trim() === "") {
+    return null;
+  }
+  return token;
 }
 
 function retrieveCachedUser() {
   const cachedData = localStorage.getItem("activeUser");
-  if (!cachedData) return null;
+  if (!cachedData || cachedData === "null" || cachedData === "undefined") return null;
 
   try {
     return JSON.parse(cachedData);

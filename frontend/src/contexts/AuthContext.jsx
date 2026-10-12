@@ -10,9 +10,7 @@ export function AuthProvider({ children }) {
   const [authError, setAuthError] = useState(null);
   const navigate = useNavigate();
 
-  // Runs once on mount: was there already a session saved from a previous
-  // visit? If so, confirm it against the backend rather than trusting
-  // whatever is cached in localStorage.
+  // Runs once on mount: confirm active session against backend
   useEffect(() => {
     const initializeAuthStatus = async () => {
       const savedToken = authService.retrieveAuthToken();
@@ -39,6 +37,20 @@ export function AuthProvider({ children }) {
     setAuthError(null);
     try {
       const result = await authService.registerAccount(data);
+      
+      if (result.token && result.user) {
+        localStorage.setItem("authToken", result.token);
+        localStorage.setItem("activeUser", JSON.stringify(result.user));
+        setCurrentUser(result.user);
+      } else if (result.user && data.password) {
+        const loginResult = await authService.loginAccount({
+          email: data.email,
+          password: data.password,
+        });
+        setCurrentUser(loginResult.user);
+      }
+
+      navigate('/'); 
       return { success: true, user: result.user };
     } catch (err) {
       const errorMsg = err.message || 'Registration failed. Please try again.';
@@ -55,6 +67,7 @@ export function AuthProvider({ children }) {
     try {
       const { user } = await authService.loginAccount(credentials);
       setCurrentUser(user);
+      navigate('/dashboard'); 
       return { success: true, user };
     } catch (err) {
       const errorMsg = err.message || 'Invalid email or password.';
@@ -93,9 +106,6 @@ export function AuthProvider({ children }) {
   return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
 }
 
-/** Reads the auth context. Throws if called outside <AuthProvider>. */
-// react-refresh only checks component exports in this file; the hook is intentionally
-// shared across modules, so this lint rule is suppressed on the hook export.
 // eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const authVal = useContext(AuthContext);
