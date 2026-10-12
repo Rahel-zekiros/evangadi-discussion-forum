@@ -83,7 +83,6 @@ const isPasswordValid = await bcrypt.compare(
   account.password_hash,
 );
 
-console.log("PASSWORD VALID:", isPasswordValid);
 
 if (!isPasswordValid) {
   throw new UnauthenticatedError("Invalid credentials provided.");

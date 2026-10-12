@@ -7,7 +7,7 @@ import {
   getDocumentFile,
 } from "../service/rag.service.js";
 
-// Upload and Process Documents  Abduselam
+// Upload and Process Documents 
 
 export const uploadAndProcessDocument = async (req, res) => {
   const userId = req.user.id || req.user.userId;
@@ -154,6 +154,7 @@ export const askDocumentAI = async (req, res) => {
 // ==========================================
 // Get Document File (PDF / TXT)
 // ==========================================
+import path from "path";
 
 export const getDocumentFileController = async (req, res, next) => {
   try {
@@ -164,9 +165,26 @@ export const getDocumentFileController = async (req, res, next) => {
       userId: req.user.id,
     });
 
+    const extension = path.extname(filename).toLowerCase();
+
+    const contentTypes = {
+      ".pdf": "application/pdf",
+      ".txt": "text/plain; charset=utf-8",
+    };
+
+    const contentType = contentTypes[extension];
+
+    if (!contentType) {
+      return res.status(415).json({
+        success: false,
+        message: "Unsupported document type.",
+      });
+    }
+
+    res.setHeader("Content-Type", contentType);
     res.setHeader(
       "Content-Disposition",
-      `inline; filename="${filename}"`,
+      `inline; filename="${path.basename(filename)}"`,
     );
 
     return res.sendFile(filePath);
