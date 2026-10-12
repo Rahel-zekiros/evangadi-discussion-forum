@@ -36,15 +36,17 @@ export const getSingleQuestionValidation = [
     .matches(/^[a-f0-9]{16}$/)
     .withMessage("Question hash must be a 16-character lowercase hex string"),
 ];
-
-// Answer Post Validation
 export const postAnswerValidation = [
   param("questionHash")
+    .matches(/^[a-f0-9]{16}$/)
+    .withMessage("Question hash must be a 16-character lowercase hex string"),
+
+  body("content")
+    .trim()
     .notEmpty()
-    .withMessage("Question hash is required")
-    .isHexadecimal()
-    .withMessage("Invalid question hash format"),
-  body("content").trim().notEmpty().withMessage("Answer content is required"),
+    .withMessage("Answer content is required")
+    .isLength({ min: 20 })
+    .withMessage("Answer must be at least 20 characters long"),
 ];
 
 export const searchQuestionsValidation = [

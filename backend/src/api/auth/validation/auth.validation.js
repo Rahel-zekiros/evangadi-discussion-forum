@@ -14,15 +14,12 @@ export const validateUserRegistration = [
   // Express validator field chains
   (req, res, next) => {
     const { firstName, lastName, email, password } = req.body;
-    if (!firstName || firstName.trim().length < 3) {
-      throw new BadRequestError(
-        "First name is required and must be at least 3 characters.",
-      );
+    if (!firstName || !firstName.trim()) {
+      throw new BadRequestError("First name is required.");
     }
-    if (!lastName || lastName.trim().length < 3) {
-      throw new BadRequestError(
-        "Last name is required and must be at least 3 characters.",
-      );
+
+    if (!lastName || !lastName.trim()) {
+      throw new BadRequestError("Last name is required.");
     }
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       throw new BadRequestError("Please provide a valid email address.");
@@ -61,13 +58,19 @@ export const validatePasswordChange = [
       throw new BadRequestError("Current password is required.");
     }
     if (!newPassword || newPassword.length < 6) {
-      throw new BadRequestError("New password must be at least 6 characters long.");
+      throw new BadRequestError(
+        "New password must be at least 6 characters long.",
+      );
     }
     if (!/\d/.test(newPassword)) {
-      throw new BadRequestError("New password must contain at least one number.");
+      throw new BadRequestError(
+        "New password must contain at least one number.",
+      );
     }
     if (currentPassword === newPassword) {
-      throw new BadRequestError("Choose a password different from your current one.");
+      throw new BadRequestError(
+        "Choose a password different from your current one.",
+      );
     }
 
     next();

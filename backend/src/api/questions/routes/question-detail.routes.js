@@ -1,4 +1,5 @@
 import express from "express";
+
 import {
   authenticateUser as auth,
   optionalAuth,
@@ -17,18 +18,21 @@ import {
 
 import {
   createQuestionController,
-  getQuestionsController,    
+  getQuestionsController,
   generateQuestionDraftCoachController,
   searchQuestionsSemanticController,
 } from "../controller/question.controller.js";
 
-import {getSingleQuestionController,
+import {
+  getSingleQuestionController,
   postAnswerController,
   getSimilarQuestionsController,
-  assessAnswerAgainstQuestionController} 
-  from "../controller/question-detail.controller.js";
+  assessAnswerAgainstQuestionController,
+} from "../controller/question-detail.controller.js";
+
 const router = express.Router();
 
+// Generate a question draft
 router.post(
   "/draft-coach",
   optionalAuth,
@@ -36,25 +40,39 @@ router.post(
   generateQuestionDraftCoachController,
 );
 
-router.post("/", auth, createQuestionValidation, createQuestionController);
+// Create a question (login required)
+router.post(
+  "/",
+  auth,
+  createQuestionValidation,
+  createQuestionController,
+);
 
-router.get("/", optionalAuth, getQuestionsValidation, getQuestionsController);
+// Get questions (public)
+router.get(
+  "/",
+  auth,
+  getQuestionsValidation,
+  getQuestionsController,
+);
 
+// Search questions (public)
 router.get(
   "/search",
-  optionalAuth,
+  auth,
   searchQuestionsValidation,
   searchQuestionsSemanticController,
 );
 
+// Get question details (login required)
 router.get(
   "/:questionHash",
-  optionalAuth,
+  auth,
   getSingleQuestionValidation,
   getSingleQuestionController,
 );
 
-// Post Answer to Question
+// Post an answer (login required)
 router.post(
   "/:questionHash/answers",
   auth,
@@ -62,13 +80,15 @@ router.post(
   postAnswerController,
 );
 
+// Get similar questions (public)
 router.get(
   "/:questionHash/similar",
-  optionalAuth,
+  auth,
   getSimilarQuestionsValidation,
   getSimilarQuestionsController,
 );
 
+// Assess answer fit (login required)
 router.post(
   "/:questionHash/answer-fit",
   auth,

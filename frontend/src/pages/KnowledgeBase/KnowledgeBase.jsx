@@ -79,7 +79,7 @@ export default function KnowledgeBase() {
       setIsLoading(true);
       setErrorMessage("");
 
-const res = await apiClient.get("/api/rag/documents");
+      const res = await apiClient.get("/api/rag/documents");
       setDocuments(res.data.data || []);
     } catch (err) {
       console.error("Error loading documents:", err);
@@ -101,11 +101,13 @@ const res = await apiClient.get("/api/rag/documents");
   // ==========================================
   // LOAD DOCUMENTS ON COMPONENT MOUNT
   // ==========================================
-
-  useEffect(() => {
+useEffect(() => {
+  const timer = setTimeout(() => {
     fetchDocuments();
-  }, []);
+  }, 0);
 
+  return () => clearTimeout(timer);
+}, []);
   // ==========================================
   // AUTO SCROLL CHAT
   // ==========================================
@@ -295,30 +297,30 @@ const res = await apiClient.get("/api/rag/documents");
   // ==========================================
   // SELECT DOCUMENT
   // ==========================================
-const handleSelectDoc = (doc) => {
-  console.log("SELECTED DOC:", doc);
-  console.log("TITLE:", doc?.title);
-  console.log("FILE PATH:", doc?.filePath);
-  console.log("DOCUMENT ID:", doc?.documentId);
+  const handleSelectDoc = (doc) => {
+    console.log("SELECTED DOC:", doc);
+    console.log("TITLE:", doc?.title);
+    console.log("FILE PATH:", doc?.filePath);
+    console.log("DOCUMENT ID:", doc?.documentId);
 
-  setSelectedDoc(doc);
+    setSelectedDoc(doc);
 
-  setTextContent("");
-  setIsLoadingText(false);
+    setTextContent("");
+    setIsLoadingText(false);
 
-  setSearchQuery("");
-  setSearchResults([]);
-  setSelectedResult(null);
+    setSearchQuery("");
+    setSearchResults([]);
+    setSelectedResult(null);
 
-  setSearchError("");
-  setSearchMessage("");
+    setSearchError("");
+    setSearchMessage("");
 
-  setExpandedChunks({});
+    setExpandedChunks({});
 
-  setChatMessages([]);
-  setAiQuestion("");
-  setAiError("");
-};
+    setChatMessages([]);
+    setAiQuestion("");
+    setAiError("");
+  };
 
   // ==========================================
   // LOAD TXT CONTENT FOR READER
@@ -331,7 +333,7 @@ const handleSelectDoc = (doc) => {
         return;
       }
 
-const isTxt = selectedDoc.title?.toLowerCase().endsWith(".txt");
+      const isTxt = selectedDoc.title?.toLowerCase().endsWith(".txt");
       if (!isTxt) {
         setTextContent("");
         return;
@@ -340,8 +342,9 @@ const isTxt = selectedDoc.title?.toLowerCase().endsWith(".txt");
       try {
         setIsLoadingText(true);
 
-        const response = await apiClient.get(`/${selectedDoc.filePath}`);
-
+        const response = await apiClient.get(
+          `/api/rag/documents/${selectedDoc.documentId}/file`,
+        );
         console.log("TXT content loaded:", response.data);
 
         setTextContent(response.data);
@@ -373,7 +376,7 @@ const isTxt = selectedDoc.title?.toLowerCase().endsWith(".txt");
     const chunkIdx = result.chunkIndex ?? null;
 
     const chunkKey = `${
-      result.documentId || selectedDoc?.documentId|| "doc"
+      result.documentId || selectedDoc?.documentId || "doc"
     }-${chunkIdx}`;
 
     setSelectedResult(result);
